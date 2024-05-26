@@ -1,19 +1,14 @@
 import Quiz from './Trivia';
 import * as React from 'react';
 import { useState } from 'react';
-import Constants from 'expo-constants';
-import {NavigationContainer} from '@react-navigation/native';
 import {
   StyleSheet,
-  Button,
   View,
   SafeAreaView,
   Text,
-  Alert,
   Modal,
   Pressable
 } from 'react-native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from "@react-navigation/native";
 
 
@@ -56,7 +51,8 @@ export default function HomeScreen () {
                                 backgroundColor: 'midnightblue',
                                 borderRadius: 5,
                                 padding: 10,
-                                elevation: 2,}}>Cerrar</Text>
+                                elevation: 2,
+                                fontSize: 24}}>Cerrar</Text>
               </Pressable>
             </View>
           </Modal>

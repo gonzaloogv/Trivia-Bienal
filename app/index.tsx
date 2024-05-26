@@ -1,28 +1,16 @@
 import * as React from 'react';
-import { useState } from 'react';
-import Constants from 'expo-constants';
 import {NavigationContainer} from '@react-navigation/native';
 import {
   StyleSheet,
-  View,
-  SafeAreaView,
-  Text,
-  Alert,
-  Modal,
-  Pressable
 } from 'react-native';
 import Trivia from './screens/Trivia';
 import Home from './screens/Home';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 
-
-const Separator = () => <View style={styles.separator} />;
 const Stack = createNativeStackNavigator();
 
 export default function App () {
-
-  const [isModalVisible, setIsModalVisible] = useState(false);
   return (
     <NavigationContainer independent={true}>
       <Stack.Navigator>
