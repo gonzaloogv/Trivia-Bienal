@@ -76,7 +76,7 @@ const Quiz = () => {
 
                 }}>
                     <Text style={{color: COLORS.white, fontSize: 20, opacity: 0.6, marginRight:2}}>{currentQuestionIndex+1}</Text>
-                    <Text style={{color: COLORS.white, fontSize: 18, opacity: 0.6}}>{allQuestions.length}</Text>
+                    <Text style={{color: COLORS.white, fontSize: 18, opacity: 0.6}}>/{allQuestions.length}</Text>
                 </View>
                 {/*Preguntas */}
                 <Text style={{
@@ -98,7 +98,8 @@ const Quiz = () => {
                         key={option}
                         style={{
                             borderWidth: 3, 
-                            borderColor: option==correctOption 
+                            borderColor: COLORS.secondary+"20",
+                            backgroundColor: option==correctOption 
                             ? COLORS.success +"20"
                             : option== currentOptionSelected 
                             ? COLORS.error +"20"
@@ -108,7 +109,7 @@ const Quiz = () => {
                             flexDirection: "row",
                             alignItems: 'center',
                             paddingHorizontal: 20,
-                            marginVertical: 10
+                            marginVertical: 10,
                         }}
                         >
                             <Text style={{fontSize: 20, color: COLORS.white}}>{option}</Text>

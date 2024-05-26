@@ -68,13 +68,13 @@ const styles = StyleSheet.create({
   button: {
     color: 'white',
     textAlign: 'center',
-    backgroundColor: '#252c4a',
+    backgroundColor: '#F194FF',
     borderRadius: 5,
     padding: 10,
     elevation: 2,
   },
   buttonOpen: {
-    backgroundColor: '#252c4a',
+    backgroundColor: '#F194FF',
   },
   buttonClose: {
     backgroundColor: '#2196F3',
