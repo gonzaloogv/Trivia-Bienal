@@ -48,7 +48,7 @@ export default function HomeScreen () {
                 onPress={() => setIsModalVisible(false)}>
                   <Text style={{color: 'white',
                                 textAlign: 'center',
-                                backgroundColor: 'midnightblue',
+                                backgroundColor: 'red',
                                 borderRadius: 5,
                                 padding: 10,
                                 elevation: 2,
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   button: {
     color: 'white',
     textAlign: 'center',
-    backgroundColor: '#F194FF',
+    backgroundColor: '#252c4a',
     borderRadius: 5,
     padding: 10,
     elevation: 2,
