@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, SafeAreaView, StatusBar, Image, TouchableOpacity, Modal, Animated } from 'react-native';
+import React, { useState,useRef, useEffect } from 'react';
+import { View, Text, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, Modal, Animated } from 'react-native';
 import { COLORS, SIZES } from '../constants';
 import data from '../data/QuizData';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import CountDown from 'react-native-countdown-component';
+const Separator = () => <View style={styles.separator} />;
+
 const Quiz = () => {
 
     const allQuestions = data;
@@ -13,7 +16,15 @@ const Quiz = () => {
     const [score, setScore] = useState(0);
     const [showNextButton, setShowNextButton] = useState(false);
     const [showScoreModal, setShowScoreModal] = useState(false);
+    const [finishTimer, setFinishTimer] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(60); // Inicialmente 60 segundos
+    const [key, setKey] = useState(0); // Clave para forzar re-render
 
+  
+    const handlePress = () => {
+      setTimeLeft(prevTimeLeft => prevTimeLeft + 10); // Sumar 10 segundos al tiempo restante
+      setKey(prevKey => prevKey + 1); // Cambiar la clave para forzar re-render
+    };
 
     const validateAnswer = (selectedOption) => {
         let correct_option = allQuestions[currentQuestionIndex]['correct_option'];
@@ -23,6 +34,7 @@ const Quiz = () => {
         if(selectedOption==correct_option){
             // se suman puntos
             setScore(score+1);
+            handlePress();
         }
         // Se muestra boton de siguiente
         setShowNextButton(true)
@@ -48,6 +60,7 @@ const Quiz = () => {
     }
     const restartQuiz =() => {
         setShowScoreModal(false);
+        setFinishTimer(false);
 
         setCurrentQuestionIndex(0);
         setScore(0);
@@ -67,7 +80,8 @@ const Quiz = () => {
     const renderQuestion = () => {
         return (
             <View style={{
-                marginVertical: 40
+                marginVertical: 10
+            
             }}>
                 {/* Contador de preguntas*/}
                 <View style={{
@@ -81,7 +95,7 @@ const Quiz = () => {
                 {/*Preguntas */}
                 <Text style={{
                     color: COLORS.white,
-                    fontSize: 30
+                    fontSize: 24
                 }}>{allQuestions[currentQuestionIndex]?.question}
                 </Text>
             </View>
@@ -109,7 +123,7 @@ const Quiz = () => {
                             flexDirection: "row",
                             alignItems: 'center',
                             paddingHorizontal: 20,
-                            marginVertical: 10,
+                            marginVertical: 10
                         }}
                         >
                             <Text style={{fontSize: 20, color: COLORS.white}}>{option}</Text>
@@ -154,18 +168,19 @@ const Quiz = () => {
                 <TouchableOpacity 
                 onPress={handleNext}
                 style={{
-                    marginTop: 20,
+                    marginTop: 10,
                     width: '100%',
                     backgroundColor: COLORS.accent,
-                    padding: 20,
+                    padding: 10,
                     borderRadius: 5
                 }}>
                     <Text style={{
-                        fontSize: 20,
+                        fontSize: 24,
                         color: COLORS.white,
                         textAlign: 'center',
                     }}>Siguiente</Text>
                 </TouchableOpacity>
+                
             )
     }else{
         return null
@@ -196,38 +211,10 @@ const Quiz = () => {
             </View>
         )
     }
-    
 
-
-
-
-    return (
-        <SafeAreaView style={{
-                flex: 1
-            }}>
-            <StatusBar barStyle="light-content" backgroudColor={COLORS.primary}/>
-            <View style={{
-                flex:1,
-                paddingVertical: 40,
-                paddingHorizontal: 16,
-                backgroundColor: COLORS.background,
-                position: 'relative'
-            }}>
-
-                {/* BARRA DE PROGRESO */}
-                { renderProgressBar() }
-
-                {/* PREGUNTAS */}
-                {renderQuestion()}
-
-                {/* OPCIONES */}
-                {renderOptions()}
-
-                {/* SIGUIENTE BOTON */}
-                {renderNextButton()}
-
-                {/* Tabla de puntos */}
-                <Modal
+    const showResults = () => {
+        return (
+            <Modal
                 animationType="slide"
                 transparent={false}
                 visible={showScoreModal}
@@ -245,7 +232,7 @@ const Quiz = () => {
                             padding: 20,
                             alignItems: 'center'
                         }}>
-                            <Text style={{fontSize: 30, fontWeight: "bold"}}>{  score> (allQuestions.length/2) ? 'Felicidades' : 'Que mal!' }</Text>
+                            <Text style={{fontSize: 30, fontWeight: "bold", textAlign:'center'}}>{  score> (allQuestions.length/2) ? 'Felicidades' : 'Que mal!' }</Text>
 
                             <View style={{
                                 flexDirection: 'row',
@@ -277,10 +264,133 @@ const Quiz = () => {
 
                     </View>
                 </Modal>
+        )
+    }
+
+    const renderFinishTimer = () => {
+        return (
+            <Modal
+                animationType="slide"
+                transparent={false}
+                visible={finishTimer}
+                >
+                    <View style={{
+                        flex:1,
+                        backgroudColor: COLORS.primary,
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <View style={{
+                            backgroudColor: COLORS.white,
+                            width: '90%',
+                            borderRadius: 20,
+                            padding: 20,
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{fontSize: 24, fontWeight: "bold", textAlign:'center'}}>{  score> (allQuestions.length/2) ? 'Se ha acabado el tiempo! Felicidades por su resultado' : 'Se ha acabado el tiempo! Su resultado fue' }</Text>
+
+                            <View style={{
+                                flexDirection: 'row',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                marginVertical: 20
+                            }}>
+                                <Text style={{
+                                    fontSize: 30,
+                                    color: score> (allQuestions.length/2) ? COLORS.success : COLORS.error
+                                }}>{score}</Text>
+                                 <Text style={{
+                                    fontSize: 20, color: COLORS.black
+                                 }}>/ { allQuestions.length }</Text>
+                            </View>
+                            {/* INTENTAR DE NUEVO */}
+                            <TouchableOpacity
+                            onPress={restartQuiz}
+                            style={{
+                               backgroundColor: COLORS.accent,
+                               padding: 20, width: '100%', borderRadius: 20
+                            }}>
+                                <Text style={{
+                                   textAlign: 'center', color: COLORS.white, fontSize: 20
+                                }}>Intentar de nuevo</Text>
+                            </TouchableOpacity>
+
+                        </View>
+
+                    </View>
+                </Modal>
+        )
+    }
+    
+    const renderTimer= () => {
+        return (   
+            <View>
+                <Separator />
+                <CountDown
+                key={key}
+                until={timeLeft}
+                size={26}
+                running={true}
+                onFinish={() => setFinishTimer(true)}
+                digitStyle={{backgroundColor: COLORS.secondary+'20', borderWidth: 3, borderColor: COLORS.secondary+'20'}}
+                digitTxtStyle={{color: '#fff'}}
+                timeLabelStyle={{color: 'white', fontWeight: 'bold'}}
+                separatorStyle={{color: COLORS.secondary+'20'}}
+                timeToShow={['M', 'S']}
+                timeLabels={{m: '', s: ''}}
+                />
+            </View>
+            
+        )
+    }
+
+
+    return (
+        <SafeAreaView style={{
+                flex: 1
+            }}>
+            <StatusBar barStyle="light-content" backgroudColor={COLORS.primary}/>
+            <View style={{
+                flex:1,
+                paddingVertical: 40,
+                paddingHorizontal: 16,
+                backgroundColor: COLORS.background,
+                position: 'relative'
+            }}>
+
+                {/* BARRA DE PROGRESO */}
+                { renderProgressBar() }
+
+                {/* PREGUNTAS */}
+                {renderQuestion()}
+
+                {/* OPCIONES */}
+                {renderOptions()}
+
+                {/* SIGUIENTE BOTON */}
+                {renderNextButton()}
+
+                {/* TIMER */}
+                {renderTimer()}
+                {renderFinishTimer()}
+
+                {/* Tabla de puntos */}
+                {showResults()}
+                         
 
 
             </View>
         </SafeAreaView>
     )             
 }
+const styles = StyleSheet.create({
+    separator: {
+    marginVertical: 8,
+    borderBottomColor: '#737373',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    parentView: {
+        flex:1,
+    }
+    });
 export default Quiz

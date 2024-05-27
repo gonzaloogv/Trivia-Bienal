@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 
-
 const Separator = () => <View style={styles.separator} />;
 
 export default function HomeScreen () {
@@ -22,15 +21,15 @@ export default function HomeScreen () {
       <View>
         <View>
           <Text style={styles.title}>
-            Bienal 2024
+            Trivia Bienal 2024
           </Text>
           <Pressable
             onPress={()=> navigation.navigate('Trivia')}>
             <Text style={styles.button}>Jugar</Text>
           </Pressable>
-        </View>
-        <Separator />
-        <View>
+        
+          <Separator />
+        
           <Pressable
             onPress={() => setIsModalVisible(true)}>
                 <Text style={styles.button}>Instrucciones</Text>
@@ -43,7 +42,7 @@ export default function HomeScreen () {
           >
         
             <View style={styles.modalView}>
-              <Text style={{fontSize: 24}}>Se le hara una serie de preguntas acerca de la bienal 2024</Text>
+              <Text style={{fontSize: 24, textAlign: 'center'}}>Se le hara una serie de preguntas acerca de la bienal 2024</Text><Separator />
               <Pressable
                 onPress={() => setIsModalVisible(false)}>
                   <Text style={{color: 'white',
@@ -116,7 +115,7 @@ const styles = StyleSheet.create({
   button: {
     color: 'white',
     textAlign: 'center',
-    backgroundColor: '#252c4a',
+    backgroundColor: "#1E90FF",
     borderRadius: 5,
     padding: 10,
     elevation: 2,
