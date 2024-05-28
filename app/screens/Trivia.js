@@ -132,10 +132,10 @@ const Quiz = () => {
                             flexDirection: "row",
                             alignItems: 'center',
                             paddingHorizontal: 20,
-                            marginVertical: 10
+                            marginVertical: 10,
                         }}
                         >
-                            <Text style={{fontSize: 20, color: COLORS.white}}>{option}</Text>
+                            <Text style={{fontSize: 20, color: COLORS.white, marginRight: 15}}>{option}</Text>
 
                             {/* MOSTRAR ICONO DE CORRECTO O ERRONEO DE RESPUESTA*/}
                             {
@@ -171,6 +171,7 @@ const Quiz = () => {
             </View>
         )
     }
+
     const renderNextButton = () => {
         if(showNextButton){
             return (
@@ -308,7 +309,8 @@ const Quiz = () => {
     
     const renderTimer= () => {
         return (
-                <View style={styles.container}>
+                <View style={styles.container}
+                >
                     <View style={styles.timerContainer}>
                         <View style={[styles.timeWrapper, styles.minutesWrapper]}>
                             <Text style={styles.timeText}>{Math.floor(timeRemaining / 60)}</Text>
@@ -421,7 +423,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: StyleSheet.hairlineWidth,
     },
     container: {
-        
+        flex:1,
+        flexDirection: 'row',
         marginTop: 14,
         justifyContent: 'center',
         alignItems: 'center',
