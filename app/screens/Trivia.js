@@ -1,10 +1,8 @@
 import React, { useState,useRef, useEffect } from 'react';
 import { View, Text, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, Modal, Animated } from 'react-native';
-import { COLORS, SIZES } from '../constants';
+import { COLORS } from '../constants';
 import data from '../data/QuizData';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import CountDown from 'react-native-countdown-component';
-const Separator = () => <View style={styles.separator} />;
 
 const Quiz = () => {
 
@@ -15,16 +13,12 @@ const Quiz = () => {
     const [isOptionsDisabled, setIsOptionsDisabled] = useState(false);
     const [score, setScore] = useState(0);
     const [showNextButton, setShowNextButton] = useState(false);
-    const [showScoreModal, setShowScoreModal] = useState(false);
-    const [finishTimer, setFinishTimer] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(60); // Inicialmente 60 segundos
-    const [key, setKey] = useState(0); // Clave para forzar re-render
+    const [timeRemaining, setTimeRemaining] = useState(180); // Inicialmente 60 segundos
+    const intervalRef = useRef(null);
+    const [isTimeUp, setIsTimeUp] = useState(false); // Estado para controlar si el tiempo ha llegado a cero
+    const [modalVisible, setModalVisible] = useState(false); // Estado para controlar la visibilidad de la modal
 
   
-    const handlePress = () => {
-      setTimeLeft(prevTimeLeft => prevTimeLeft + 10); // Sumar 10 segundos al tiempo restante
-      setKey(prevKey => prevKey + 1); // Cambiar la clave para forzar re-render
-    };
 
     const validateAnswer = (selectedOption) => {
         let correct_option = allQuestions[currentQuestionIndex]['correct_option'];
@@ -34,7 +28,7 @@ const Quiz = () => {
         if(selectedOption==correct_option){
             // se suman puntos
             setScore(score+1);
-            handlePress();
+            handleAddTime();
         }
         // Se muestra boton de siguiente
         setShowNextButton(true)
@@ -44,7 +38,8 @@ const Quiz = () => {
         if(currentQuestionIndex== allQuestions.length-1){
             //UltimaPregunta
             //MostrarTablaDePuntos
-            setShowScoreModal(true);
+            setIsTimeUp(true);
+            
         }else{
             setCurrentQuestionIndex(currentQuestionIndex+1);
             setCurrentOptionSelected(null);
@@ -59,8 +54,10 @@ const Quiz = () => {
         }).start();
     }
     const restartQuiz =() => {
-        setShowScoreModal(false);
-        setFinishTimer(false);
+        clearInterval(intervalRef.current);
+        setModalVisible(false);
+        setIsTimeUp(false);
+        setTimeRemaining(180);
 
         setCurrentQuestionIndex(0);
         setScore(0);
@@ -69,12 +66,24 @@ const Quiz = () => {
         setCorrectOption(null);
         setIsOptionsDisabled(false);
         setShowNextButton(false);
+        intervalRef.current = setInterval(() => {
+            setTimeRemaining(prevTime => {
+                if (prevTime === 0) {
+                    clearInterval(intervalRef.current);
+                    setIsTimeUp(true);
+                    return 0;
+                }
+                return prevTime - 1;
+            });
+        }, 1000);
         Animated.timing(progress, {
             toValue: 0,
             duration: 1000,
             useNativeDriver: false,
         }).start();
+        
     }
+
 
 
     const renderQuestion = () => {
@@ -217,7 +226,7 @@ const Quiz = () => {
             <Modal
                 animationType="slide"
                 transparent={false}
-                visible={showScoreModal}
+                visible={modalVisible}
                 >
                     <View style={{
                         flex:1,
@@ -267,82 +276,105 @@ const Quiz = () => {
         )
     }
 
-    const renderFinishTimer = () => {
-        return (
-            <Modal
-                animationType="slide"
-                transparent={false}
-                visible={finishTimer}
-                >
-                    <View style={{
-                        flex:1,
-                        backgroudColor: COLORS.primary,
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}>
-                        <View style={{
-                            backgroudColor: COLORS.white,
-                            width: '90%',
-                            borderRadius: 20,
-                            padding: 20,
-                            alignItems: 'center'
-                        }}>
-                            <Text style={{fontSize: 24, fontWeight: "bold", textAlign:'center'}}>{  score> (allQuestions.length/2) ? 'Se ha acabado el tiempo! Felicidades por su resultado' : 'Se ha acabado el tiempo! Su resultado fue' }</Text>
+    useEffect(() => {
+        clearInterval(intervalRef.current); // Detener el temporizador actual
+        intervalRef.current = setInterval(() => {
+            setTimeRemaining(prevTime => {
+                if (prevTime === 0) {
+                    clearInterval(intervalRef.current);
+                    setIsTimeUp(true); // Marcar que el tiempo ha llegado a cero
+                    return 0;
+                }
+                return prevTime - 1;
+            });
+        }, 1000);
+    
+        return () => clearInterval(intervalRef.current);
+    }, []);
 
-                            <View style={{
-                                flexDirection: 'row',
-                                justifyContent: 'flex-start',
-                                alignItems: 'center',
-                                marginVertical: 20
-                            }}>
-                                <Text style={{
-                                    fontSize: 30,
-                                    color: score> (allQuestions.length/2) ? COLORS.success : COLORS.error
-                                }}>{score}</Text>
-                                 <Text style={{
-                                    fontSize: 20, color: COLORS.black
-                                 }}>/ { allQuestions.length }</Text>
-                            </View>
-                            {/* INTENTAR DE NUEVO */}
-                            <TouchableOpacity
-                            onPress={restartQuiz}
-                            style={{
-                               backgroundColor: COLORS.accent,
-                               padding: 20, width: '100%', borderRadius: 20
-                            }}>
-                                <Text style={{
-                                   textAlign: 'center', color: COLORS.white, fontSize: 20
-                                }}>Intentar de nuevo</Text>
-                            </TouchableOpacity>
+    // Mostrar la modal solo si el tiempo ha llegado a cero y la modal aún no se ha mostrado
+    useEffect(() => {
+        if (isTimeUp && !modalVisible) {
+            setModalVisible(true);
+        }
+    }, [isTimeUp, modalVisible]);
 
-                        </View>
+    // Función para añadir tiempo (puedes usarla si necesitas)
+    const handleAddTime = () => {
+        setTimeRemaining(prevTime => prevTime + 10); // Sumar 10 segundos al tiempo restante
+    };
+  
 
-                    </View>
-                </Modal>
-        )
-    }
     
     const renderTimer= () => {
-        return (   
-            <View>
-                <Separator />
-                <CountDown
-                key={key}
-                until={timeLeft}
-                size={26}
-                running={true}
-                onFinish={() => setFinishTimer(true)}
-                digitStyle={{backgroundColor: COLORS.secondary+'20', borderWidth: 3, borderColor: COLORS.secondary+'20'}}
-                digitTxtStyle={{color: '#fff'}}
-                timeLabelStyle={{color: 'white', fontWeight: 'bold'}}
-                separatorStyle={{color: COLORS.secondary+'20'}}
-                timeToShow={['M', 'S']}
-                timeLabels={{m: '', s: ''}}
-                />
-            </View>
-            
-        )
-    }
+        return (
+                <View style={styles.container}>
+                    <View style={styles.timerContainer}>
+                        <View style={[styles.timeWrapper, styles.minutesWrapper]}>
+                            <Text style={styles.timeText}>{Math.floor(timeRemaining / 60)}</Text>
+                        </View>
+                        <View style={[styles.timeWrapper, styles.secondsWrapper]}>
+                            <Text style={styles.timeText}>{timeRemaining % 60 < 10 ? '0' : ''}{timeRemaining % 60}</Text>
+                        </View>
+                    </View>
+                        <Modal
+                        animationType="slide"
+                        transparent={false}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                            setModalVisible(false);
+                        }}
+                        >
+                            <View style={{
+                                flex:1,
+                                backgroudColor: COLORS.primary,
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                <View style={{
+                                    backgroudColor: COLORS.white,
+                                    width: '90%',
+                                    borderRadius: 20,
+                                    padding: 20,
+                                    alignItems: 'center'
+                                }}>
+                                    <Text style={{fontSize: 24, fontWeight: "bold", textAlign:'center'}}>{  score> (allQuestions.length/2) ? 'Se ha acabado el tiempo! Felicidades por su resultado' : 'Se ha acabado el tiempo! Su resultado fue' }</Text>
+
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'flex-start',
+                                        alignItems: 'center',
+                                        marginVertical: 20
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 30,
+                                            color: score> (allQuestions.length/2) ? COLORS.success : COLORS.error
+                                        }}>{score}</Text>
+                                        <Text style={{
+                                            fontSize: 20, color: COLORS.black
+                                        }}>/ { allQuestions.length }</Text>
+                                    </View>
+                                    {/* INTENTAR DE NUEVO */}
+                                    <TouchableOpacity
+                                    onPress={restartQuiz}
+                                    style={{
+                                    backgroundColor: COLORS.accent,
+                                    padding: 20, width: '100%', borderRadius: 20
+                                    }}>
+                                        <Text style={{
+                                        textAlign: 'center', color: COLORS.white, fontSize: 20
+                                        }}>Intentar de nuevo</Text>
+                                    </TouchableOpacity>
+
+                                </View>
+
+                            </View>
+                    
+                        </Modal>
+                    </View>
+        );
+    };
+    
 
 
     return (
@@ -372,7 +404,6 @@ const Quiz = () => {
 
                 {/* TIMER */}
                 {renderTimer()}
-                {renderFinishTimer()}
 
                 {/* Tabla de puntos */}
                 {showResults()}
@@ -385,12 +416,40 @@ const Quiz = () => {
 }
 const styles = StyleSheet.create({
     separator: {
-    marginVertical: 8,
-    borderBottomColor: '#737373',
-    borderBottomWidth: StyleSheet.hairlineWidth,
+        marginVertical: 8,
+        borderBottomColor: '#737373',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    container: {
+        
+        marginTop: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     parentView: {
         flex:1,
-    }
+    },
+    timerContainer: {
+        flexDirection: 'row',
+    },
+    timeWrapper: {
+        padding: 5,
+        marginHorizontal: 5,
+        borderRadius: 5,
+    },
+    minutesWrapper: {
+        borderWidth: 3,
+        borderColor: COLORS.secondary+'20',
+        backgroundColor: COLORS.secondary+'20',
+    },
+    secondsWrapper: {
+        borderWidth: 3,
+        borderColor: COLORS.secondary+'20',
+        backgroundColor: COLORS.secondary+'20',
+    },
+    timeText: {
+        color: 'white',
+        fontSize: 32,
+    },
     });
 export default Quiz
