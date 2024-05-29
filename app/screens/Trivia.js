@@ -7,17 +7,16 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 const Quiz = () => {
 
     const allQuestions = data;
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
-    const [correctOption, setCorrectOption] = useState(null);
-    const [isOptionsDisabled, setIsOptionsDisabled] = useState(false);
-    const [score, setScore] = useState(0);
-    const [showNextButton, setShowNextButton] = useState(false);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Preguntas
+    const [currentOptionSelected, setCurrentOptionSelected] = useState(null); // Opcion seleccionada
+    const [correctOption, setCorrectOption] = useState(null); // Verificar la opcion correcta
+    const [isOptionsDisabled, setIsOptionsDisabled] = useState(false); // Mostrar opciones
+    const [score, setScore] = useState(0); // Puntuacion inicial en 0
+    const [showNextButton, setShowNextButton] = useState(false); //Boton de siguiente
     const [timeRemaining, setTimeRemaining] = useState(180); // Inicialmente 60 segundos
     const intervalRef = useRef(null);
     const [isTimeUp, setIsTimeUp] = useState(false); // Estado para controlar si el tiempo ha llegado a cero
-    const [modalVisible, setModalVisible] = useState(false); // Estado para controlar la visibilidad de la modal
-
+    const [modalVisible, setModalVisible] = useState(false); // Estado para controlar la visibilidad de la modal, se muestra cuando finaliza el juego
   
 
     const validateAnswer = (selectedOption) => {
