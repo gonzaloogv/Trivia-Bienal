@@ -13,19 +13,19 @@ const Quiz = () => {
     const [isOptionsDisabled, setIsOptionsDisabled] = useState(false); // Mostrar opciones
     const [score, setScore] = useState(0); // Puntuacion inicial en 0
     const [showNextButton, setShowNextButton] = useState(false); //Boton de siguiente
-    const [timeRemaining, setTimeRemaining] = useState(180); // Inicialmente 60 segundos
+    const [timeRemaining, setTimeRemaining] = useState(180); // Inicialmente 3 minutos
     const intervalRef = useRef(null);
     const [isTimeUp, setIsTimeUp] = useState(false); // Estado para controlar si el tiempo ha llegado a cero
     const [modalVisible, setModalVisible] = useState(false); // Estado para controlar la visibilidad de la modal, se muestra cuando finaliza el juego
   
-
+    // Para validar respuesta correcta
     const validateAnswer = (selectedOption) => {
         let correct_option = allQuestions[currentQuestionIndex]['correct_option'];
         setCurrentOptionSelected(selectedOption);
         setCorrectOption(correct_option);
         setIsOptionsDisabled(true);
         if(selectedOption==correct_option){
-            // se suman puntos
+            // se suman puntos si es respuesta correcta
             setScore(score+1);
             handleAddTime();
         }
@@ -33,6 +33,7 @@ const Quiz = () => {
         setShowNextButton(true)
     }
 
+    // Boton de siguiente
     const handleNext =() => {
         if(currentQuestionIndex== allQuestions.length-1){
             //UltimaPregunta
@@ -52,14 +53,16 @@ const Quiz = () => {
             useNativeDriver: false,
         }).start();
     }
+
+    // En caso de presionar boton de intentar de nuevo
     const restartQuiz =() => {
         clearInterval(intervalRef.current);
-        setModalVisible(false);
+        setModalVisible(false); // se esconde modal de resultados
         setIsTimeUp(false);
-        setTimeRemaining(180);
+        setTimeRemaining(180); // se reinicia tiempo en 3 minutos
 
-        setCurrentQuestionIndex(0);
-        setScore(0);
+        setCurrentQuestionIndex(0); // inicia pregunta en indice 0
+        setScore(0); // se reinicia puntaje
 
         setCurrentOptionSelected(null);
         setCorrectOption(null);
