@@ -6,8 +6,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 const Quiz = () => {
 
-    const allQuestions = data;
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Preguntas
+    const [shuffledQuestions, setShuffledQuestions] = useState([]); // Todas las preguntas en orden random
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Total de preguntas
     const [currentOptionSelected, setCurrentOptionSelected] = useState(null); // Opcion seleccionada
     const [correctOption, setCorrectOption] = useState(null); // Verificar la opcion correcta
     const [isOptionsDisabled, setIsOptionsDisabled] = useState(false); // Mostrar opciones
@@ -18,16 +18,25 @@ const Quiz = () => {
     const [isTimeUp, setIsTimeUp] = useState(false); // Estado para controlar si el tiempo ha llegado a cero
     const [modalVisible, setModalVisible] = useState(false); // Estado para controlar la visibilidad de la modal, se muestra cuando finaliza el juego
   
+     // Mezclar las preguntas
+    const shuffleQuestions = () => {
+        const shuffled = [...data].sort(() => Math.random() - 0.5);
+        setShuffledQuestions(shuffled);
+    };
+
+    useEffect(() => {
+        shuffleQuestions(); // Mezclar preguntas al inicio
+    }, []);
+
     // Para validar respuesta correcta
     const validateAnswer = (selectedOption) => {
-        let correct_option = allQuestions[currentQuestionIndex]['correct_option'];
+        let correct_option = shuffledQuestions[currentQuestionIndex]['correct_option'];
         setCurrentOptionSelected(selectedOption);
         setCorrectOption(correct_option);
         setIsOptionsDisabled(true);
         if(selectedOption==correct_option){
             // se suman puntos si es respuesta correcta
             setScore(score+1);
-            handleAddTime();
         }
         // Se muestra boton de siguiente
         setShowNextButton(true)
@@ -35,7 +44,7 @@ const Quiz = () => {
 
     // Boton de siguiente
     const handleNext =() => {
-        if(currentQuestionIndex== allQuestions.length-1){
+        if(currentQuestionIndex== shuffledQuestions.length-1){
             //UltimaPregunta
             //MostrarTablaDePuntos
             setIsTimeUp(true);
@@ -101,13 +110,13 @@ const Quiz = () => {
 
                 }}>
                     <Text style={{color: COLORS.white, fontSize: 20, opacity: 0.6, marginRight:2}}>{currentQuestionIndex+1}</Text>
-                    <Text style={{color: COLORS.white, fontSize: 18, opacity: 0.6}}>/{allQuestions.length}</Text>
+                    <Text style={{color: COLORS.white, fontSize: 18, opacity: 0.6}}>/{shuffledQuestions.length}</Text>
                 </View>
                 {/*Preguntas */}
                 <Text style={{
                     color: COLORS.white,
                     fontSize: 24
-                }}>{allQuestions[currentQuestionIndex]?.question}
+                }}>{shuffledQuestions[currentQuestionIndex]?.question}
                 </Text>
             </View>
         )
@@ -116,7 +125,7 @@ const Quiz = () => {
         return (
             <View>
                 {
-                    allQuestions[currentQuestionIndex]?.options.map(option => (
+                    shuffledQuestions[currentQuestionIndex]?.options.map(option => (
                         <TouchableOpacity
                         onPress={() => validateAnswer(option)}
                         disabled={isOptionsDisabled}
@@ -200,7 +209,7 @@ const Quiz = () => {
     }
     const [progress] = useState(new Animated.Value(0));
     const progressAnim = progress.interpolate({
-        inputRange: [0, allQuestions.length],
+        inputRange: [0, shuffledQuestions.length],
         outputRange: ['0%','100%']
     })
     const renderProgressBar = () => {
@@ -244,7 +253,7 @@ const Quiz = () => {
                             padding: 20,
                             alignItems: 'center'
                         }}>
-                            <Text style={{fontSize: 30, fontWeight: "bold", textAlign:'center'}}>{  score> (allQuestions.length/2) ? 'Felicidades' : 'Que mal!' }</Text>
+                            <Text style={{fontSize: 30, fontWeight: "bold", textAlign:'center'}}>{  score> (shuffledQuestions.length/2) ? 'Felicidades' : 'Que mal!' }</Text>
 
                             <View style={{
                                 flexDirection: 'row',
@@ -254,11 +263,11 @@ const Quiz = () => {
                             }}>
                                 <Text style={{
                                     fontSize: 30,
-                                    color: score> (allQuestions.length/2) ? COLORS.success : COLORS.error
+                                    color: score> (shuffledQuestions.length/2) ? COLORS.success : COLORS.error
                                 }}>{score}</Text>
                                  <Text style={{
                                     fontSize: 20, color: COLORS.black
-                                 }}>/ { allQuestions.length }</Text>
+                                 }}>/ { shuffledQuestions.length }</Text>
                             </View>
                             {/* INTENTAR DE NUEVO */}
                             <TouchableOpacity
@@ -342,7 +351,7 @@ const Quiz = () => {
                                     padding: 20,
                                     alignItems: 'center'
                                 }}>
-                                    <Text style={{fontSize: 24, fontWeight: "bold", textAlign:'center'}}>{  score> (allQuestions.length/2) ? 'Se ha acabado el tiempo! Felicidades por su resultado' : 'Se ha acabado el tiempo! Su resultado fue' }</Text>
+                                    <Text style={{fontSize: 24, fontWeight: "bold", textAlign:'center'}}>{  score> (shuffledQuestions.length/2) ? 'Se ha acabado el tiempo! Felicidades por su resultado' : 'Se ha acabado el tiempo! Su resultado fue' }</Text>
 
                                     <View style={{
                                         flexDirection: 'row',
@@ -352,11 +361,11 @@ const Quiz = () => {
                                     }}>
                                         <Text style={{
                                             fontSize: 30,
-                                            color: score> (allQuestions.length/2) ? COLORS.success : COLORS.error
+                                            color: score> (shuffledQuestions.length/2) ? COLORS.success : COLORS.error
                                         }}>{score}</Text>
                                         <Text style={{
                                             fontSize: 20, color: COLORS.black
-                                        }}>/ { allQuestions.length }</Text>
+                                        }}>/ { shuffledQuestions.length }</Text>
                                     </View>
                                     {/* INTENTAR DE NUEVO */}
                                     <TouchableOpacity
